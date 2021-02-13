@@ -33,16 +33,23 @@ public class PhFrame extends JFrame {
     }
 
     public static void add(Photo ph){
-        System.out.println(array.length);
-        System.out.println();
         int length = array.length + 1;
         Object[][] newArray = new Object[length][3];
         for(int i = 0; i < array.length; i++)
             newArray[i]=array[i];
         newArray[length-1] = new Object[]{ph.getId(), ph.getShMode(), ph.getLink()};
         array = newArray.clone();
-        for(int i = 0; i < length; i++)
-            System.out.println(newArray[i][0] + " " + newArray[i][1] + " " + newArray[i][2]);
+        new PhFrame();
+    }
+    public static void edit(Photo ph){
+
+        for(int i = 0; i < array.length; i++)
+            if((Integer)array[i][0] == ph.getId()) {
+                array[i][1] = ph.getLink();
+                array[i][2] = ph.getShMode();
+            }
+            //newArray[i]=array[i];
+
         new PhFrame();
     }
     public PhFrame() {
@@ -98,7 +105,11 @@ public class PhFrame extends JFrame {
         edit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(table1.getSelectedRow()!=-1) {
+                int sRow = table1.getSelectedRow();
+                if(sRow!=-1) {
+
+                    new PhEdit(array[sRow][0], array[sRow][1], array[sRow][2]);
+                    dispose();
                     /*int length = array.length - 1;
                     Object[][] newArray = new Object[length][3];
                     for (int i = 0, j = 0; i < array.length; i++)
