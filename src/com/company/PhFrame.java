@@ -5,8 +5,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,20 +17,24 @@ import java.util.Enumeration;
 
 public class PhFrame extends JFrame {
     private static JTable table1;
+    private DefaultTableModel model;
     private static Object[] columnsHeader = new String[]{"ID", "Режим зйомки", "Посилання"};
     private TableColumnModel columnModel;
-    private static Object[][] array = new String[][]{{"1", "Портрет", "https://www.meme-arsenal.com/memes/5a6bbdb411444d12607a0ef8b0603917.jpg"}};
+    private static Object[][] array = new Object[][]{{1, "Портрет", "https://www.meme-arsenal.com/memes/5a6bbdb411444d12607a0ef8b0603917.jpg"}};
     public static int get_size(){
         return array.length;
     }
     public static int getNewId(){
-        int id = Integer.parseInt((String) array[array.length-1][0]);
+        int id;
+        if(array.length != 0)
+        id = (Integer) array[array.length-1][0];
+        else id = 0;
         return id+1;
     }
-    public void removeByPossition(int possition){
-        //array[possition]
-    }
+
     public static void add(Photo ph){
+        System.out.println(array.length);
+        System.out.println();
         int length = array.length + 1;
         Object[][] newArray = new Object[length][3];
         for(int i = 0; i < array.length; i++)
@@ -42,7 +48,8 @@ public class PhFrame extends JFrame {
     public PhFrame() {
         super("Знімки");
 
-        table1 = new JTable(array, columnsHeader){
+        model = new DefaultTableModel(array, columnsHeader);
+        table1 = new JTable(model){
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
                 return false;
             }
@@ -51,7 +58,6 @@ public class PhFrame extends JFrame {
             }
         };
         columnModel = table1.getColumnModel();
-
         Enumeration<TableColumn> e = columnModel.getColumns();
         while (e.hasMoreElements()) {
             TableColumn column = (TableColumn) e.nextElement();
@@ -72,18 +78,40 @@ public class PhFrame extends JFrame {
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(table1.getSelectedRow());
-
-
-                table1 = new JTable(array, columnsHeader);
+                if(table1.getSelectedRow()!=-1) {
+                    int length = array.length - 1;
+                    Object[][] newArray = new Object[length][3];
+                    for (int i = 0, j = 0; i < array.length; i++)
+                        if (i != table1.getSelectedRow()) {
+                            newArray[j] = array[i];
+                            j++;
+                        } else model.removeRow(table1.getSelectedRow());
+                    array = newArray.clone();
+                }else{
+                    System.out.println("Помилка");
+                    JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно видалити",
+                            "Помилка", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         JButton edit = new JButton("Редагувати виділений знімок");
         edit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new PhAdd();
-                //dispose();
+                if(table1.getSelectedRow()!=-1) {
+                    /*int length = array.length - 1;
+                    Object[][] newArray = new Object[length][3];
+                    for (int i = 0, j = 0; i < array.length; i++)
+                        if (i != table1.getSelectedRow()) {
+                            newArray[j] = array[i];
+                            j++;
+                        } else model.removeRow(table1.getSelectedRow());
+                    array = newArray.clone();*/
+                }else{
+                    System.out.println("Помилка");
+                    JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно відредагувати",
+                            "Помилка", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         JPanel pnlButtons = new JPanel();
@@ -118,6 +146,7 @@ public class PhFrame extends JFrame {
         setMinimumSize(new Dimension(600, 300));
         getContentPane().add(contents);
         getContentPane().add(pnlButtons, BorderLayout.SOUTH);
+        setMinimumSize(new Dimension(600, 300));
         setSize(600, 300);
         setVisible(true);
     }

@@ -5,6 +5,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -14,14 +15,18 @@ import java.util.Enumeration;
 
 public class VModeFrame extends JFrame {
     private static JTable table1;
+    private DefaultTableModel model;
     private static Object[] columnsHeader = new String[]{"ID", "Назва", "Модифікатор швидкості"};
     private TableColumnModel columnModel;
-    private static Object[][] array = new String[][]{{"1", "Фаст", "3"}};
+    private static Object[][] array = new Object[][]{{1, "Фаст", "3"}};
     public static int get_size(){
         return array.length;
     }
     public static int getNewId(){
-        int id = Integer.parseInt((String) array[array.length-1][0]);
+        int id;
+        if(array.length != 0)
+            id = (Integer) array[array.length-1][0];
+        else id = 0;
         return id+1;
     }
     public static String[] getVModes(){
@@ -44,9 +49,12 @@ public class VModeFrame extends JFrame {
     }
     public VModeFrame() {
         super("Режим відео");
-        //setMinimumSize();
-        table1 = new JTable(array, columnsHeader){
-            public boolean editCellAt(int row, int column, java.util.EventObject e){
+        model = new DefaultTableModel(array, columnsHeader);
+        table1 = new JTable(model){
+            public boolean editCellAt(int row, int column, java.util.EventObject e) {
+                return false;
+            }
+            public boolean moveColumnAt(int column, java.util.EventObject e) {
                 return false;
             }
         };
@@ -55,7 +63,6 @@ public class VModeFrame extends JFrame {
         while (e.hasMoreElements()) {
             TableColumn column = (TableColumn) e.nextElement();
             column.setMinWidth(50);
-            //column.setMaxWidth(200);
         }
         Box contents = new Box(BoxLayout.Y_AXIS);
         contents.add(new JScrollPane(table1));
@@ -100,7 +107,8 @@ public class VModeFrame extends JFrame {
         table1.setRowSelectionAllowed(false);
         getContentPane().add(contents);
         getContentPane().add(pnlButtons, BorderLayout.SOUTH);
-        setSize(480, 300);
+        setMinimumSize(new Dimension(600, 300));
+        setSize(600, 300);
         setVisible(true);
     }
 }

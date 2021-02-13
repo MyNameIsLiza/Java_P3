@@ -5,6 +5,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -16,18 +17,22 @@ import static java.lang.System.out;
 
 public class ShModeFrame extends JFrame {
     private static JTable table1;
+    private DefaultTableModel model;
     private static Object[] columnsHeader = new String[]{"ID", "Назва", "Фіксація"};
     // Модель столбцов таблицы
     private TableColumnModel columnModel;
     // Данные для таблиц
-    private static Object[][] array = new String[][]{{"1", "Портрет", "1"},
-            {"3", "Панорама", "0"},
-            {"4", "Звичайне фото", "0"}};
+    private static Object[][] array = new Object[][]{{1, "Портрет", 1},
+            {3, "Панорама", 0},
+            {4, "Звичайне фото", 0}};
     public static int get_size(){
         return array.length;
     }
     public static int getNewId(){
-        int id = Integer.parseInt((String) array[array.length-1][0]);
+        int id;
+        if(array.length != 0)
+            id = (Integer) array[array.length-1][0];
+        else id = 0;
         return id+1;
     }
     public static String[] getShModes(){
@@ -59,12 +64,15 @@ public class ShModeFrame extends JFrame {
         super("Режим зйомки");
         //setDefaultCloseOperation();
         // Создание таблицы
-        table1 = new JTable(array, columnsHeader){
-            public boolean editCellAt(int row, int column, java.util.EventObject e){
+        model = new DefaultTableModel(array, columnsHeader);
+        table1 = new JTable(model){
+            public boolean editCellAt(int row, int column, java.util.EventObject e) {
+                return false;
+            }
+            public boolean moveColumnAt(int column, java.util.EventObject e) {
                 return false;
             }
         };
-        // Получаем стандартную модель
         columnModel = table1.getColumnModel();
 
         // Определение минимального и максимального размеров столбцов
@@ -146,7 +154,8 @@ public class ShModeFrame extends JFrame {
         // Вывод окна на экран
         getContentPane().add(contents);
         getContentPane().add(pnlButtons, BorderLayout.SOUTH);
-        setSize(480, 300);
+        setMinimumSize(new Dimension(600, 300));
+        setSize(600, 300);
         setVisible(true);
     }
 }
