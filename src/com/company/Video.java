@@ -1,6 +1,6 @@
 package com.company;
 
-public class Video {
+public class Video implements java.io.Serializable {
     private int id;
     private String vMode;
     private String link;

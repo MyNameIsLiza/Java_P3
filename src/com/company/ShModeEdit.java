@@ -5,54 +5,57 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PhEdit extends JFrame {
-    public PhEdit(Object id, Object shMode, Object link) {
-        super("Редагувати знімок");
+public class ShModeEdit extends JFrame {
+
+    public ShModeEdit(Object id, Object name, Object fixation) {
+        super("Редагувати режим зйомки");
         String[]shModes = ShModeFrame.getShModes();
         JPanel pnlTextFields = new JPanel(new GridLayout(0, 2));
-        JLabel l1 = new JLabel("Режим зйомки");
-        JLabel l2 = new JLabel("Посилання");
+        //contents.add(new JScrollPane(table2));
+        JLabel l1 = new JLabel("Назва");
+        JLabel l2 = new JLabel("Фіксація");
+        l1.setBounds(50, 50, 50, 20);
+        l2.setBounds(100, 50, 50, 20);
         pnlTextFields.add(l1);
-        JTextField tf2 = new JTextField();
-        JComboBox<String> cb1 = new JComboBox<>();
-        for(int i = 0; i < shModes.length; i++) {
-            cb1.addItem(shModes[i]);
-        }
-        cb1.setSelectedItem(shMode);
-        tf2.setText((String)link);
-        pnlTextFields.add(cb1);
+
+        JTextField tf1 = new JTextField();
+        JCheckBox cb2 = new JCheckBox();
+        tf1.setBounds(100, 50, 150, 20);
+        pnlTextFields.add(tf1);
         pnlTextFields.add(l2);
-        pnlTextFields.add(tf2);
+        pnlTextFields.add(cb2);
+        cb2.setSelected(((Integer) fixation) == 1?true:false);
+        tf1.setText((String)name);
         JButton add = new JButton("Змінити");
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int eId;
-                String eLink;
-                String eShMode;
+                String eName;
+                boolean eFixation;
                 try {
-                    if (tf2.getText().equals("") || cb1.getSelectedItem() == null) {
+                    if (tf1.getText().equals("")) {
                         System.out.println("Помилка");
-                        JOptionPane.showMessageDialog(PhEdit.this, "Заповніть всі поля",
+                        JOptionPane.showMessageDialog(ShModeEdit.this, "Заповніть всі поля",
                                 "Помилка", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     else{
                         eId = (Integer)id;
-                        eShMode = cb1.getSelectedItem().toString();
-                        eLink = tf2.getText();
+                        eFixation = cb2.isSelected();
+                        eName = tf1.getText();
                     }
                 }
                 catch (NumberFormatException i){
                     System.out.println("Помилка");
-                    JOptionPane.showMessageDialog(PhEdit.this, "Некоректно введені дані",
+                    JOptionPane.showMessageDialog(ShModeEdit.this, "Некоректно введені дані",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
-                    tf2.setText("");
+                    tf1.setText("");
                     return;
                 }
-                Photo p = new Photo(eId, eShMode, eLink);
-                System.out.println(eId+ " " + eShMode + " " + eLink );
-                PhFrame.edit(p);
+                ShootingMode shMode = new ShootingMode(eId, eName, eFixation);
+                System.out.println(eId+ " " + eName + " " + eFixation );
+                ShModeFrame.edit(shMode);
                 dispose();
             }
         });

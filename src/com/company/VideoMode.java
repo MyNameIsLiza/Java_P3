@@ -1,6 +1,6 @@
 package com.company;
 
-public class VideoMode{
+public class VideoMode implements java.io.Serializable{
     private int id;
     private String name;
     private double speed;

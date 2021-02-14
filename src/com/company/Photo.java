@@ -1,6 +1,6 @@
 package com.company;
 
-public class Photo {
+public class Photo implements java.io.Serializable {
     private int id;
     private String shMode;
     private String link;

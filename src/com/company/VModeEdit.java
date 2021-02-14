@@ -5,54 +5,54 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PhEdit extends JFrame {
-    public PhEdit(Object id, Object shMode, Object link) {
-        super("Редагувати знімок");
-        String[]shModes = ShModeFrame.getShModes();
+public class VModeEdit extends JFrame {
+    public VModeEdit(Object id, Object name, Object speed) {
+        super("Додати новий режим відео");
         JPanel pnlTextFields = new JPanel(new GridLayout(0, 2));
-        JLabel l1 = new JLabel("Режим зйомки");
-        JLabel l2 = new JLabel("Посилання");
+        JLabel l1 = new JLabel("Назва");
+        JLabel l2 = new JLabel("Модифікатор швидкості");
+        l1.setBounds(50, 50, 50, 20);
+        l2.setBounds(100, 50, 50, 20);
         pnlTextFields.add(l1);
+        JTextField tf1 = new JTextField();
         JTextField tf2 = new JTextField();
-        JComboBox<String> cb1 = new JComboBox<>();
-        for(int i = 0; i < shModes.length; i++) {
-            cb1.addItem(shModes[i]);
-        }
-        cb1.setSelectedItem(shMode);
-        tf2.setText((String)link);
-        pnlTextFields.add(cb1);
+        tf1.setBounds(100, 50, 150, 20);
+        pnlTextFields.add(tf1);
         pnlTextFields.add(l2);
         pnlTextFields.add(tf2);
+        tf1.setText((String)name);
+        tf2.setText(((Double)speed).toString());
         JButton add = new JButton("Змінити");
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int eId;
-                String eLink;
-                String eShMode;
+                String eName;
+                double eSpeed;
                 try {
-                    if (tf2.getText().equals("") || cb1.getSelectedItem() == null) {
+                    if (tf1.getText().equals("") || tf2.getText().equals("")) {
                         System.out.println("Помилка");
-                        JOptionPane.showMessageDialog(PhEdit.this, "Заповніть всі поля",
+                        JOptionPane.showMessageDialog(VModeEdit.this, "Заповніть всі поля",
                                 "Помилка", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     else{
                         eId = (Integer)id;
-                        eShMode = cb1.getSelectedItem().toString();
-                        eLink = tf2.getText();
+                        eSpeed = Double.parseDouble(tf2.getText());
+                        eName = tf1.getText();
                     }
                 }
                 catch (NumberFormatException i){
                     System.out.println("Помилка");
-                    JOptionPane.showMessageDialog(PhEdit.this, "Некоректно введені дані",
+                    JOptionPane.showMessageDialog(VModeEdit.this, "Некоректно введені дані",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
+                    tf1.setText("");
                     tf2.setText("");
                     return;
                 }
-                Photo p = new Photo(eId, eShMode, eLink);
-                System.out.println(eId+ " " + eShMode + " " + eLink );
-                PhFrame.edit(p);
+                VideoMode vMode = new VideoMode(eId, eName, eSpeed);
+                System.out.println(eId+ " " + eName + " " + eSpeed );
+                VModeFrame.edit(vMode);
                 dispose();
             }
         });

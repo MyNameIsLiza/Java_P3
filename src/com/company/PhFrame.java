@@ -13,10 +13,13 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 public class PhFrame extends JFrame {
     private static JTable table1;
+    private static String path = "photos.ser";
     private DefaultTableModel model;
     private static Object[] columnsHeader = new String[]{"ID", "Режим зйомки", "Посилання"};
     private TableColumnModel columnModel;
@@ -36,25 +39,23 @@ public class PhFrame extends JFrame {
         int length = array.length + 1;
         Object[][] newArray = new Object[length][3];
         for(int i = 0; i < array.length; i++)
-            newArray[i]=array[i];
+            newArray[i] = array[i];
         newArray[length-1] = new Object[]{ph.getId(), ph.getShMode(), ph.getLink()};
         array = newArray.clone();
         new PhFrame();
     }
+    ////////////////////////
     public static void edit(Photo ph){
 
         for(int i = 0; i < array.length; i++)
             if((Integer)array[i][0] == ph.getId()) {
-                array[i][1] = ph.getLink();
-                array[i][2] = ph.getShMode();
+                array[i][2] = ph.getLink();
+                array[i][1] = ph.getShMode();
             }
-            //newArray[i]=array[i];
-
         new PhFrame();
     }
     public PhFrame() {
         super("Знімки");
-
         model = new DefaultTableModel(array, columnsHeader);
         table1 = new JTable(model){
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -69,7 +70,6 @@ public class PhFrame extends JFrame {
         while (e.hasMoreElements()) {
             TableColumn column = (TableColumn) e.nextElement();
             column.setMinWidth(50);
-            //column.setMaxWidth(200);
         }
         Box contents = new Box(BoxLayout.Y_AXIS);
         contents.add(new JScrollPane(table1));
@@ -81,19 +81,51 @@ public class PhFrame extends JFrame {
                 dispose();
             }
         });
+        add.setBackground( new Color(172, 227, 132) );
+
         JButton delete = new JButton("Видалити виділений знімок");
         delete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(table1.getSelectedRow()!=-1) {
-                    int length = array.length - 1;
+                int count = table1.getSelectedRows().length;
+                System.out.println("Selected rows count = " + count);
+                if(count != -1) {
+                    for (int s = 0; s < count; s++)
+                        System.out.println(table1.getSelectedRows()[s]+1);
+                    int length = array.length - count;
+                    if (length == 0) {
+                        Object[][] newArray = new Object[length][3];
+                        array = newArray.clone();
+                        for (int i = 0; i < array.length; i++)
+                            model.removeRow(0);
+                        dispose();
+                        new PhFrame();
+                        return;
+                    }
                     Object[][] newArray = new Object[length][3];
-                    for (int i = 0, j = 0; i < array.length; i++)
-                        if (i != table1.getSelectedRow()) {
+                    boolean leo;
+                    for (int i = array.length - 1, j = length - 1; j >= 0; i--) {
+                        leo = false;
+                        System.out.print("i = " + i + ", ");
+                        for (int s = count-1; s >= 0; s--) {
+                            System.out.print("s = " + table1.getSelectedRows()[s] + ", ");
+                            if (i != table1.getSelectedRows()[s]) {
+                            } else {
+                                leo = true;
+                                break;
+                            }
+                        }
+                        System.out.print("j = " + j + ", ");
+                        if (!leo) {
                             newArray[j] = array[i];
-                            j++;
-                        } else model.removeRow(table1.getSelectedRow());
+                            j--;
+                            leo = false;
+                            System.out.print("--------");
+                        }
+                    }
                     array = newArray.clone();
+                    dispose();
+                    new PhFrame();
                 }else{
                     System.out.println("Помилка");
                     JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно видалити",
@@ -101,23 +133,15 @@ public class PhFrame extends JFrame {
                 }
             }
         });
+        delete.setBackground( new Color(251, 165, 150) );
         JButton edit = new JButton("Редагувати виділений знімок");
         edit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int sRow = table1.getSelectedRow();
                 if(sRow!=-1) {
-
                     new PhEdit(array[sRow][0], array[sRow][1], array[sRow][2]);
                     dispose();
-                    /*int length = array.length - 1;
-                    Object[][] newArray = new Object[length][3];
-                    for (int i = 0, j = 0; i < array.length; i++)
-                        if (i != table1.getSelectedRow()) {
-                            newArray[j] = array[i];
-                            j++;
-                        } else model.removeRow(table1.getSelectedRow());
-                    array = newArray.clone();*/
                 }else{
                     System.out.println("Помилка");
                     JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно відредагувати",
@@ -125,10 +149,113 @@ public class PhFrame extends JFrame {
                 }
             }
         });
+
+        edit.setBackground( new Color(172, 227, 255) );
+        JButton serialize = new JButton("Записати в файл");
+        serialize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ArrayList<Photo> arr = new ArrayList<>();
+                    for (int i = 0; i < array.length; i++) {
+                        Photo temp = new Photo((Integer)array[i][0], (String) array[i][1],(String) array[i][2]);
+                        arr.add((temp) );
+                    }
+                    System.out.println(arr.size());
+                    FileOutputStream fos = new FileOutputStream(path);
+                    ObjectOutputStream out = new ObjectOutputStream(fos);
+
+                    for (int i = 0; i < arr.size(); i++) {
+                        System.out.println(arr.get(i).getId() + " " + arr.get(i).getShMode() + " " + arr.get(i).getLink());
+                    }
+                    for (int i = 0; i < arr.size(); i++) {
+                        out.writeObject(arr.get(i));
+                    }
+
+                    out.close();
+                    fos.close();
+                    JOptionPane.showMessageDialog(PhFrame.this, "Запис в файл пройшов успішно",
+                            "Важливо", JOptionPane.INFORMATION_MESSAGE);
+                }catch (IOException i){
+                    System.out.println("Помилка серіалізації");
+                    JOptionPane.showMessageDialog(PhFrame.this, "Помилка серіалізації",
+                            "Помилка", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        serialize.setBackground( new Color(255, 173, 93) );
+        JButton deserialize = new JButton("Зчитати з файла");
+        deserialize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    FileInputStream fis = new FileInputStream(path);
+                    ObjectInputStream in = new ObjectInputStream(fis);
+                    ArrayList<Photo> arr = new ArrayList<>();
+                    Photo photo = (Photo)in.readObject();
+                    do{
+                        arr.add(photo);
+                        try {
+                            System.out.println("+"+photo.getId());
+                            photo = (Photo) in.readObject();
+                        }catch (IOException ee){
+                            Object[][] newArray = new Object[arr.size()][3];
+                            for (int i = 0;i < arr.size(); i++) {
+                                newArray[i][0] = arr.get(i).getId();
+                                newArray[i][1] = arr.get(i).getShMode();
+                                newArray[i][2] = arr.get(i).getLink();
+                            }
+                            array = newArray.clone();
+                            JOptionPane.showMessageDialog(PhFrame.this, "Читання з в файлу пройшло успішно",
+                                    "Важливо", JOptionPane.INFORMATION_MESSAGE);
+                            dispose();
+                            new PhFrame();
+                            in.close();
+                            fis.close();
+
+                            return;
+                        }
+                    }while (photo != null);
+
+
+                }catch (IOException | ClassNotFoundException ee){
+                    System.out.println("Помилка десеріалізації");
+                    JOptionPane.showMessageDialog(PhFrame.this, "Помилка десеріалізації",
+                            "Помилка", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        deserialize.setBackground( new Color(255, 215, 93) );
+        JButton clearFile = new JButton("Очистити файл");
+        clearFile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    File file = new File(path);
+                    file.delete();
+                    JOptionPane.showMessageDialog(PhFrame.this, "Файл " + file.getName() + " очищено",
+                            "Важливо", JOptionPane.INFORMATION_MESSAGE);
+                }catch (Exception i){
+                    System.out.println("Помилка відкриття файлу");
+                }
+
+            }
+        });
+        clearFile.setBackground( new Color(215, 149, 130) );
+        table1.setBackground(new Color(219, 209, 236));
+        ////////////////////////
         JPanel pnlButtons = new JPanel();
         pnlButtons.add(add);
+        ////////////////////////
         pnlButtons.add(edit);
         pnlButtons.add(delete);
+        pnlButtons.setBackground(new Color(219, 209, 236));
+        JPanel pnlSerialization = new JPanel();
+        pnlSerialization.add(serialize);
+        pnlSerialization.add(deserialize);
+        pnlSerialization.add(clearFile);
+        pnlSerialization.setBackground(new Color(238, 209, 196));
+        ////////////////////////
         columnModel.addColumnModelListener(new TableColumnModelListener() {
             @Override
             public void columnAdded(TableColumnModelEvent arg0) {
@@ -154,9 +281,11 @@ public class PhFrame extends JFrame {
                 System.out.println("TableColumnModelListener.columnSelectionChanged()");
             }
         });
+
         setMinimumSize(new Dimension(600, 300));
         getContentPane().add(contents);
         getContentPane().add(pnlButtons, BorderLayout.SOUTH);
+        getContentPane().add(pnlSerialization, BorderLayout.NORTH);
         setMinimumSize(new Dimension(600, 300));
         setSize(600, 300);
         setVisible(true);

@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Enumeration;
 
-public class ShootingMode {
+public class ShootingMode implements java.io.Serializable {
     private int id;
     private String name;
     private boolean fixation;
