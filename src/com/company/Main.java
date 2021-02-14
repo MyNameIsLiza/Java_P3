@@ -78,6 +78,12 @@ public class Main {
 
             }
         });
+        gButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                new GFrame();
+
+            }
+        });
         f.getContentPane().add(pnlButtons, BorderLayout.CENTER);
         f.setMinimumSize(new Dimension(400,400));
         f.setSize(400,400);

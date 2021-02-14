@@ -8,8 +8,6 @@ import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,45 +15,61 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-public class PhFrame extends JFrame {
+public class GFrame extends JFrame {
     private static JTable table1;
-    private static String path = "photos.ser";
+    private static String path = "gallery.ser";
     private DefaultTableModel model;
-    private static Object[] columnsHeader = new String[]{"ID", "Режим зйомки", "Посилання"};
+    private static Object[] columnsHeader = new String[]{"ID", "Режим", "Посилання", "Тип"};
     private TableColumnModel columnModel;
-    private static Object[][] array = new Object[][]{{1, "Портрет", "https://www.meme-arsenal.com/memes/5a6bbdb411444d12607a0ef8b0603917.jpg"}};
-    public static Object[][] getArr(){
-        return array;
+    private static Object[][] array = new Object[][]{};
+    public static int get_size(){
+        return array.length;
     }
-    public static int getNewId(){
+    /*public static int getNewId(){
         int id;
         if(array.length != 0)
         id = (Integer) array[array.length-1][0];
         else id = 0;
         return id+1;
-    }
+    }*/
 
-    public static void add(Photo ph){
+    /*public static void add(Photo ph){
         int length = array.length + 1;
         Object[][] newArray = new Object[length][3];
         for(int i = 0; i < array.length; i++)
             newArray[i] = array[i];
         newArray[length-1] = new Object[]{ph.getId(), ph.getShMode(), ph.getLink()};
         array = newArray.clone();
-        new PhFrame();
-    }
+        new GFrame();
+    }*/
     ////////////////////////
-    public static void edit(Photo ph){
+    /*public static void edit(Photo ph){
 
         for(int i = 0; i < array.length; i++)
             if((Integer)array[i][0] == ph.getId()) {
                 array[i][2] = ph.getLink();
                 array[i][1] = ph.getShMode();
             }
-        new PhFrame();
-    }
-    public PhFrame() {
-        super("Знімки");
+        new GFrame();
+    }*/
+    public GFrame() {
+        super("Галерея");
+        Object[][] photos = PhFrame.getArr();
+        Object[][] videos = VFrame.getArr();
+        int length = photos.length + videos.length;
+        array = new Object[length][4];
+        for(int i = 0; i < photos.length; i++) {
+            array[i][0] = photos[i][0];
+            array[i][1] = photos[i][1];
+            array[i][2] = photos[i][2];
+            array[i][3] = "Знімок";
+        }
+        for(int i = photos.length, j = 0; i < length; i++, j++) {
+            array[i][0] = videos[j][0];
+            array[i][1] = videos[j][1];
+            array[i][2] = videos[j][2];
+            array[i][3] = "Відео";
+        }
         model = new DefaultTableModel(array, columnsHeader);
         table1 = new JTable(model){
             public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -73,7 +87,9 @@ public class PhFrame extends JFrame {
         }
         Box contents = new Box(BoxLayout.Y_AXIS);
         contents.add(new JScrollPane(table1));
-        JButton add = new JButton("Додати новий знімок");
+
+
+        /*JButton add = new JButton("Додати новий знімок");
         add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -99,7 +115,7 @@ public class PhFrame extends JFrame {
                         for (int i = 0; i < array.length; i++)
                             model.removeRow(0);
                         dispose();
-                        new PhFrame();
+                        new GFrame();
                         return;
                     }
                     Object[][] newArray = new Object[length][3];
@@ -125,10 +141,10 @@ public class PhFrame extends JFrame {
                     }
                     array = newArray.clone();
                     dispose();
-                    new PhFrame();
+                    new GFrame();
                 }else{
                     System.out.println("Помилка");
-                    JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно видалити",
+                    JOptionPane.showMessageDialog(GFrame.this, "Ви не вибрали рядок, який потрібно видалити",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -144,7 +160,7 @@ public class PhFrame extends JFrame {
                     dispose();
                 }else{
                     System.out.println("Помилка");
-                    JOptionPane.showMessageDialog(PhFrame.this, "Ви не вибрали рядок, який потрібно відредагувати",
+                    JOptionPane.showMessageDialog(GFrame.this, "Ви не вибрали рядок, який потрібно відредагувати",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -174,11 +190,11 @@ public class PhFrame extends JFrame {
 
                     out.close();
                     fos.close();
-                    JOptionPane.showMessageDialog(PhFrame.this, "Запис в файл пройшов успішно",
+                    JOptionPane.showMessageDialog(GFrame.this, "Запис в файл пройшов успішно",
                             "Важливо", JOptionPane.INFORMATION_MESSAGE);
                 }catch (IOException i){
                     System.out.println("Помилка серіалізації");
-                    JOptionPane.showMessageDialog(PhFrame.this, "Помилка серіалізації",
+                    JOptionPane.showMessageDialog(GFrame.this, "Помилка серіалізації",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -206,10 +222,10 @@ public class PhFrame extends JFrame {
                                 newArray[i][2] = arr.get(i).getLink();
                             }
                             array = newArray.clone();
-                            JOptionPane.showMessageDialog(PhFrame.this, "Читання з в файлу пройшло успішно",
+                            JOptionPane.showMessageDialog(GFrame.this, "Читання з в файлу пройшло успішно",
                                     "Важливо", JOptionPane.INFORMATION_MESSAGE);
                             dispose();
-                            new PhFrame();
+                            new GFrame();
                             in.close();
                             fis.close();
 
@@ -220,7 +236,7 @@ public class PhFrame extends JFrame {
 
                 }catch (IOException | ClassNotFoundException ee){
                     System.out.println("Помилка десеріалізації");
-                    JOptionPane.showMessageDialog(PhFrame.this, "Помилка десеріалізації",
+                    JOptionPane.showMessageDialog(GFrame.this, "Помилка десеріалізації",
                             "Помилка", JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -233,7 +249,7 @@ public class PhFrame extends JFrame {
                 try {
                     File file = new File(path);
                     file.delete();
-                    JOptionPane.showMessageDialog(PhFrame.this, "Файл " + file.getName() + " очищено",
+                    JOptionPane.showMessageDialog(GFrame.this, "Файл " + file.getName() + " очищено",
                             "Важливо", JOptionPane.INFORMATION_MESSAGE);
                 }catch (Exception i){
                     System.out.println("Помилка відкриття файлу");
@@ -254,7 +270,7 @@ public class PhFrame extends JFrame {
         pnlSerialization.add(serialize);
         pnlSerialization.add(deserialize);
         pnlSerialization.add(clearFile);
-        pnlSerialization.setBackground(new Color(238, 209, 196));
+        pnlSerialization.setBackground(new Color(238, 209, 196));*/
         ////////////////////////
         columnModel.addColumnModelListener(new TableColumnModelListener() {
             @Override
@@ -284,8 +300,8 @@ public class PhFrame extends JFrame {
 
         setMinimumSize(new Dimension(600, 300));
         getContentPane().add(contents);
-        getContentPane().add(pnlButtons, BorderLayout.SOUTH);
-        getContentPane().add(pnlSerialization, BorderLayout.NORTH);
+        //getContentPane().add(pnlButtons, BorderLayout.SOUTH);
+        //getContentPane().add(pnlSerialization, BorderLayout.NORTH);
         setMinimumSize(new Dimension(600, 300));
         setSize(600, 300);
         setVisible(true);

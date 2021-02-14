@@ -22,8 +22,8 @@ public class VFrame extends JFrame {
     private static Object[] columnsHeader = new String[]{"ID", "Режим відео", "Посилання"};
     private TableColumnModel columnModel;
     private static Object[][] array = new Object[][]{{1, "Фаст", "https://www.meme-arsenal.com/memes/5a6bbdb411444d12607a0ef8b0603917.jpg"}};
-    public static int get_size(){
-        return array.length;
+    public static Object[][] getArr(){
+        return array;
     }
     public static int getNewId(){
         int id;
